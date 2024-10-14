@@ -8,7 +8,7 @@ using UnityEngine;
 public enum InteractionTargetType
 {
     ground,
-    minion,
-    chracter,
+    wall,
+    character,
     tower
 }

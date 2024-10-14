@@ -1,23 +1,21 @@
 // # System
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+
 
 // # Unity
 using UnityEngine;
-using UnityEngine.AI;
 
-public class Character : MonoBehaviour
+public enum DamageType
 {
-    [Header("Component")]
-    private Rigidbody rb;
-    private Animator animator;
-    private NavMeshAgent agent;
+    ad,
+    ap,
+    _true
+}
 
-    [Header("Camera")]
-    [SerializeField] private GameObject cameraParent;
-    [SerializeField] private Camera camera;
-
+public class Character : InteractionObject
+{
     [Header("InGameStat")]
     [SerializeField] protected float adPower;
     [SerializeField] protected float apPower;
@@ -25,6 +23,7 @@ public class Character : MonoBehaviour
     [SerializeField] protected float criticalProbability;
     [Space(10f)]
     [SerializeField] protected float maxHp;
+    protected float currentHp;
     [SerializeField] protected float mana;
     [Space(10f)]
     [SerializeField] protected float adDefense;
@@ -32,70 +31,33 @@ public class Character : MonoBehaviour
     [Space(10f)]
     [SerializeField] protected float moveSpeed;
 
-    [Header("MotionStat")]
-    [SerializeField] private float turnSpeed;
-    private bool isMotion;
-
-    [Header("Animation")]
-    private float motionSmoothTime = 0.1f;
-    public float speed;
-
-    [Header("Move")]
-    private float horInput;
-    private float verInput;
-
-    [Header("Type")]
-    public Team team;
-    public InteractionTargetType targetType;
-
-    #region 유니티 함수
-    private void Awake()
+    protected virtual void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
+        currentHp = maxHp;
     }
 
-    private void Start()
+    public virtual void TakeDamage(float damage, DamageType damageType)
     {
-        agent.speed = moveSpeed;
-        agent.angularSpeed = turnSpeed;
-    }
-
-    private void FixedUpdate()
-    {
-        horInput = Input.GetAxisRaw("Horizontal");
-        verInput = Input.GetAxisRaw("Vertical");
-    }
-
-    private void Update()
-    {
-        cameraParent.transform.position = new Vector3(transform.position.x, cameraParent.transform.position.y, transform.position.z);
-        CheckClickInteraction();
-        speed = agent.velocity.magnitude / agent.speed; //속도지정
-        animator.SetFloat("Speed", speed); //속도
-    }
-    #endregion
-
-    #region 클릭 상호작용
-    private void CheckClickInteraction()
-    {
-        if (Input.GetMouseButtonDown(1))
+        switch (damageType)
         {
-            RaycastHit hit;
-            if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity))
-            {
-                movement(hit.point);
-            }            
+            case DamageType.ad:
+                currentHp -= damage / (1 + (adDefense * 0.01f));
+                break;
+            case DamageType.ap:
+                currentHp -= damage / (1 + (apDefense * 0.01f));
+                break;
+            case DamageType._true:
+                currentHp -= damage;
+                break;
+        }
+        if(currentHp <= 0)
+        {
+            Die();
         }
     }
 
-    #endregion
-
-    #region 이동 함수
-    public void movement(Vector3 pos)
+    protected void Die()
     {
-        agent.SetDestination(pos);
+
     }
-    #endregion
 }
