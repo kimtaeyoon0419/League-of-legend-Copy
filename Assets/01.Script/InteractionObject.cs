@@ -5,6 +5,5 @@ using UnityEngine;
 public class InteractionObject : MonoBehaviour
 {
     [Header("Type")]
-    public Team team;
     public InteractionTargetType targetType;
 }

@@ -15,7 +15,7 @@ public class ManKnight : Character
 
     [Header("Camera")]
     [SerializeField] private GameObject cameraParent;
-    [SerializeField] private Camera camera;
+    [SerializeField] private Camera playerCam;
 
     [Header("MotionStat")]
     [SerializeField] private float turnSpeed;
